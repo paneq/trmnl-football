@@ -59,8 +59,20 @@ async function handleRequest(request, env) {
     });
 }
 
+async function handleNewOAuth(request, env) {
+    return new Response('New OAuth endpoint', {
+        headers: {
+            'content-type': 'text/plain;charset=UTF-8',
+        },
+    });
+}
+
 export default {
     async fetch(request, env, ctx) {
+        const url = new URL(request.url);
+        if (url.pathname === '/oauth/trmnl/new') {
+            return handleNewOAuth(request, env);
+        }
         return handleRequest(request, env);
-    }
+    },
 };
