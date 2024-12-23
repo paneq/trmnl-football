@@ -61,11 +61,48 @@ async function handleRequest(request, env) {
     });
 }
 
+// After the user has successfully finished installing the plugin,
+// TRMNL sends a success notification to installation_success_webhook_url
+// endpoint. Data is sent in JSON format with the following
+//
+// HTTP Headers:
+//
+// { 'Authorization': 'Bearer <access_token>', 'Content-Type': 'application/json'
+//
+// Body:
+//
+// {
+//    "user": {
+//      "name": "Test User"
+//      "email: "user@trmnl.com"
+//      "uuid": "674c9d99-cea1-4e52-9025-9efbe0e30901"
+//    }
+// }
+async function handleInstalledHook(request, env) {
+    const bearerAccessToken = request.headers.get('Authorization');
+    const accessToken = bearerAccessToken.replace('Bearer ', '');
+    const user = await request.json().user;
+
+    await env.KV.put(
+        accessToken,
+        JSON.stringify({
+            user: user,
+        })
+    );
+
+    return new Response(null, {
+        status: 204,
+    });
+}
+
 export default {
     async fetch(request, env, ctx) {
         const url = new URL(request.url);
         if (url.pathname === '/trmnl/oauth/new') {
             return handleNewOAuth(request, env);
+        }
+        if (url.pathname === '/trmnl/installed') {
+            return handleInstalledHook(request, env);
         }
         return handleRequest(request, env);
     },
