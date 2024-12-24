@@ -1,10 +1,25 @@
 import { Hono } from 'hono'
 import { logger } from 'hono/logger'
+import compare from 'secure-compare'
 import { handleNewOAuth } from './handleNewOAuth'
 
 type Bindings = {
     FOOTBALL_DATA_API_KEY: string
     KV: KVNamespace
+}
+
+function bearerToken(req: Request): string | null {
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+        return null
+    }
+
+    const parts = authHeader.split(' ')
+    if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer') {
+        return null
+    }
+
+    return parts[1]
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -16,6 +31,20 @@ app.use('*', logger())
 app.get('/trmnl/render', async (c) => {
     const env = c.env
     const teamIds = [86, 81, 66]
+    const providedToken = bearerToken(c.req)
+    const data = await c.req.parseBody()
+    const userUuid = data.user_uuid
+    const storedToken: string | null= await c.env.KV.get(userUuid)
+
+    if (!providedToken) {
+        return c.json({ error: 'Missing token' }, 401)
+    }
+    if (!storedToken) {
+        return c.json({ error: 'Unknown user' }, 401)
+    }
+    if (!compare(providedToken, storedToken)) {
+        return c.json({ error: 'Invalid token' }, 401)
+    }
 
     try {
         const matches = await Promise.all(
@@ -69,7 +98,12 @@ app.get('/trmnl/render', async (c) => {
       </html>
     `
 
-        return c.html(html)
+        return c.json({
+            markup: html,
+            markup_half_horizontal: '',
+            markup_half_vertical: '',
+            markup_quadrant: ''
+        })
     } catch (error) {
         console.error('Error fetching matches:', error)
         return c.text('Error fetching matches', 500)
