@@ -96,13 +96,21 @@ app.post('/trmnl/installed', async (c) => {
         // Log installation
         console.log(JSON.stringify({
             type: 'installation',
-            user: user.email,
+            user: user,
             timestamp: new Date().toISOString()
         }))
 
         await c.env.KV.put(
             accessToken,
             JSON.stringify({
+                user: user,
+            })
+        )
+
+        await c.env.KV.put(
+            user.uuid,
+            JSON.stringify({
+                accessToken: accessToken,
                 user: user,
             })
         )
