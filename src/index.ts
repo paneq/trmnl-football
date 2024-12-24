@@ -13,7 +13,7 @@ const app = new Hono<{ Bindings: Bindings }>()
 app.use('*', logger())
 
 // Main route for displaying matches
-app.get('/', async (c) => {
+app.get('/trmnl/render', async (c) => {
     const env = c.env
     const teamIds = [86, 81, 66]
 
