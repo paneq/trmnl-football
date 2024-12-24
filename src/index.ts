@@ -12,20 +12,6 @@ const app = new Hono<{ Bindings: Bindings }>()
 // Add logging middleware
 app.use('*', logger())
 
-// Custom logging middleware for API calls
-app.use('/*/matches*', async (c, next) => {
-    const startTime = Date.now()
-    await next()
-    const endTime = Date.now()
-    console.log(JSON.stringify({
-        type: 'api_call',
-        endpoint: 'football-data',
-        duration: endTime - startTime,
-        status: c.res.status,
-        path: c.req.path
-    }))
-})
-
 // Main route for displaying matches
 app.get('/', async (c) => {
     const env = c.env
