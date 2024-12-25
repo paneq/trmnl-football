@@ -41,11 +41,11 @@ app.post('/trmnl/render', async (c) => {
         return c.json({ error: 'Missing token' }, 401)
     }
     if (!storedToken) {
-        console.error('Unknown user')
+        console.error(`Unknown user UUID: ${userUuid}`)
         return c.json({ error: 'Unknown user' }, 401)
     }
     if (!compare(providedToken, storedToken)) {
-        console.error('Invalid token')
+        console.error(`Invalid token: ${providedToken}. Expected: ${storedToken}. User UUID: ${userUuid}`)
         return c.json({ error: 'Invalid token' }, 401)
     }
 
