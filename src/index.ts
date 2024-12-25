@@ -34,7 +34,8 @@ app.post('/trmnl/render', async (c) => {
     const providedToken = bearerToken(c.req)
     const data = await c.req.parseBody()
     const userUuid = data.user_uuid
-    const storedToken: string | null= await c.env.KV.get(userUuid)
+    const userData: string | null = await c.env.KV.get(userUuid)
+    const storedToken: string | null = userData ? JSON.parse(userData).accessToken : null
 
     if (!providedToken) {
         console.error('Missing token')
