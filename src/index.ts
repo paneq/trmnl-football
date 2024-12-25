@@ -1,4 +1,4 @@
-import { Hono } from 'hono'
+import {Hono, HonoRequest} from 'hono'
 import { logger } from 'hono/logger'
 import compare from 'secure-compare'
 import { handleNewOAuth } from './handleNewOAuth'
@@ -8,8 +8,8 @@ type Bindings = {
     KV: KVNamespace
 }
 
-function bearerToken(req: Request): string | null {
-    const authHeader = req.headers.get('Authorization')
+function bearerToken(req: HonoRequest): string | null {
+    const authHeader = req.header('Authorization')
     if (!authHeader) {
         return null
     }
