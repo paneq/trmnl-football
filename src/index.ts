@@ -37,12 +37,15 @@ app.get('/trmnl/render', async (c) => {
     const storedToken: string | null= await c.env.KV.get(userUuid)
 
     if (!providedToken) {
+        console.error('Missing token')
         return c.json({ error: 'Missing token' }, 401)
     }
     if (!storedToken) {
+        console.error('Unknown user')
         return c.json({ error: 'Unknown user' }, 401)
     }
     if (!compare(providedToken, storedToken)) {
+        console.error('Invalid token')
         return c.json({ error: 'Invalid token' }, 401)
     }
 
