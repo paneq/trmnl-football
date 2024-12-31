@@ -9,6 +9,7 @@ export async function renderTeamMatches(teamId, env) {
     }
     const data = await response.json()
     console.log(data);
+    data.matches.reverse()
 
     const matchItems = data.matches.map(match => `
             <div class="item">
