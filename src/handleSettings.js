@@ -75,6 +75,7 @@ export async function handleSettings(c) {
                                 <p class="description">Choose your favorite team to follow their matches</p>
                                 
                                 <form class="form" action="/trmnl/settings/update" method="POST">
+                                    <input type="hidden" name="uuid" value="${user_uuid}" />
                                     <div class="field">
                                         <label class="label">Team</label>
                                         <select name="teamId" class="input" required>
