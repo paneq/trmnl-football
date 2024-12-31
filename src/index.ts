@@ -3,6 +3,7 @@ import { logger } from 'hono/logger'
 import compare from 'secure-compare'
 import { handleNewOAuth } from './handleNewOAuth'
 import { handleSettings } from './handleSettings'
+import { handleSettingsUpdate } from './handleSettingsUpdate'
 
 type Bindings = {
     FOOTBALL_DATA_API_KEY: string
@@ -165,6 +166,10 @@ app.post('/trmnl/installed', async (c) => {
 
 app.get('/trmnl/settings', async (c) => {
     return handleSettings(c);
+})
+
+app.get('/trmnl/settings/update', async (c) => {
+    return handleSettingsUpdate(c);
 })
 
 // Error handling middleware
