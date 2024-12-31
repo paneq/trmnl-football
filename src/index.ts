@@ -2,6 +2,7 @@ import {Hono, HonoRequest} from 'hono'
 import { logger } from 'hono/logger'
 import compare from 'secure-compare'
 import { handleNewOAuth } from './handleNewOAuth'
+import { handleSettings } from './handleSettings'
 
 type Bindings = {
     FOOTBALL_DATA_API_KEY: string
@@ -160,6 +161,10 @@ app.post('/trmnl/installed', async (c) => {
         console.error('Error handling installation:', error)
         return c.text('Error processing installation', 500)
     }
+})
+
+app.get('/trmnl/settings', async (c) => {
+    return handleSettings(c);
 })
 
 // Error handling middleware
