@@ -1,4 +1,4 @@
-export async function renderTeamMatches(teamId, env) {
+export async function fetchAndRenderTeamMatches(teamId, env) {
     const response = await fetch(`http://api.football-data.org/v4/teams/${teamId}/matches?status=FINISHED&limit=5`, {
         headers: {
             'X-Auth-Token': env.FOOTBALL_DATA_API_KEY
@@ -10,6 +10,7 @@ export async function renderTeamMatches(teamId, env) {
     const data = await response.json()
     console.log(data);
     data.matches.reverse()
+    console.log(data.matches[0].competition)
 
     const matchItems = data.matches.map(match => `
             <div class="item">

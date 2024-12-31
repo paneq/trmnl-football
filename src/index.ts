@@ -4,7 +4,9 @@ import compare from 'secure-compare'
 import { handleNewOAuth } from './handleNewOAuth'
 import { handleSettings } from './handleSettings'
 import { handleSettingsUpdate } from './handleSettingsUpdate'
-import { renderTeamMatches } from './renderTeamMatches'
+import { fetchAndRenderTeamMatches } from './renderTeamMatches'
+import { renderTableStandings } from './renderTableStandings'
+import { full } from './trml'
 
 type Bindings = {
     FOOTBALL_DATA_API_KEY: string
@@ -60,7 +62,7 @@ app.post('/trmnl/render', async (c) => {
     }
 
     try {
-        const html = renderTeamMatches(teamId, c.env)
+        const html = fetchAndRenderTeamMatches(teamId, c.env)
         return c.json({
             markup: html,
             markup_half_horizontal: '',
@@ -74,7 +76,24 @@ app.post('/trmnl/render', async (c) => {
 })
 
 app.get('/trmnl/barcelona', async (c) => {
-    return c.html(renderTeamMatches(81, c.env))
+    return c.html(fetchAndRenderTeamMatches(81, c.env))
+})
+
+app.get('/trmnl/barcelona/standings', async (c) => {
+    const id = 2014 // Primera Division
+    const teamId = 81 // Barcelona
+
+    const response = await fetch(`http://api.football-data.org/v4/competitions/${id}/standings`, {
+        headers: {
+            'X-Auth-Token': c.env.FOOTBALL_DATA_API_KEY
+        }
+    })
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json()
+    const standingsTableHtml = renderTableStandings(data, teamId);
+    return c.html(full(standingsTableHtml))
 })
 
 // OAuth routes
