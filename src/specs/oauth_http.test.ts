@@ -1,9 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { unstable_dev } from 'wrangler'
 import type { UnstableDevWorker } from 'wrangler'
-import { getMiniflareFetchMock } from '@miniflare/shared'
+import { MockAgent, setGlobalDispatcher } from 'undici'
 
-// Simple in-memory KV implementation
 class InMemoryKV implements KVNamespace {
     private store: Map<string, string> = new Map()
 
@@ -18,19 +17,23 @@ class InMemoryKV implements KVNamespace {
 
 describe('OAuth flow', async () => {
     let worker: UnstableDevWorker
-    let fetchMock: ReturnType<typeof getMiniflareFetchMock>
+    let mockAgent: MockAgent
 
     beforeAll(async () => {
-        // Setup fetch mocking
-        fetchMock = getMiniflareFetchMock()
-        fetchMock.disableNetConnect()
+        mockAgent = new MockAgent()
+        setGlobalDispatcher(mockAgent)
+
+        // Allow connections to localhost (our test worker)
+        mockAgent.disableNetConnect({
+            allowList: ['127.0.0.1']
+        })
 
         // Mock the TRMNL OAuth endpoint
-        const trmnlOrigin = fetchMock.get('https://usetrmnl.com')
-        trmnlOrigin
+        const mockPool = mockAgent.get('https://usetrmnl.com')
+        mockPool
             .intercept({
-                method: 'POST',
-                path: '/oauth/token'
+                path: '/oauth/token',
+                method: 'POST'
             })
             .reply(200, {
                 access_token: 'test-access-token',
@@ -50,6 +53,7 @@ describe('OAuth flow', async () => {
 
     afterAll(async () => {
         await worker.stop()
+        mockAgent.close()
     })
 
     it('should handle successful OAuth flow', async () => {
