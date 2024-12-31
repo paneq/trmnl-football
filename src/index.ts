@@ -75,6 +75,11 @@ app.post('/trmnl/render', async (c) => {
     }
 })
 
+app.get('/trmnl/teams/:teamId', async (c) => {
+    const teamId = parseInt(c.req.param('teamId'))
+    return c.html(fetchAndRenderTeamMatches(teamId, c.env))
+})
+
 app.get('/trmnl/barcelona', async (c) => {
     return c.html(fetchAndRenderTeamMatches(81, c.env))
 })

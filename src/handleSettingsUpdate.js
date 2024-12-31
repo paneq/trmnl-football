@@ -17,5 +17,5 @@ export async function handleSettingsUpdate(c) {
 
     await c.env.KV.put(userUuid, JSON.stringify({ ...userData, teamId }));
 
-    return c.text('Settings updated');
+    return c.redirect(`/trmnl/teams/${teamId}`);
 }
