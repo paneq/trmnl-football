@@ -168,7 +168,7 @@ app.get('/trmnl/settings', async (c) => {
     return handleSettings(c);
 })
 
-app.get('/trmnl/settings/update', async (c) => {
+app.post('/trmnl/settings/update', async (c) => {
     return handleSettingsUpdate(c);
 })
 
