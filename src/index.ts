@@ -4,6 +4,7 @@ import compare from 'secure-compare'
 import { handleNewOAuth } from './handleNewOAuth'
 import { handleSettings } from './handleSettings'
 import { handleSettingsUpdate } from './handleSettingsUpdate'
+import { renderTeamMatches } from './renderTeamMatches'
 
 type Bindings = {
     FOOTBALL_DATA_API_KEY: string
@@ -32,12 +33,14 @@ app.use('*', logger())
 // Main route for displaying matches
 app.post('/trmnl/render', async (c) => {
     const env = c.env
-    const teamIds = [86, 81, 66]
+    // const teamIds = [86, 81, 66]
     const providedToken = bearerToken(c.req)
     const data = await c.req.parseBody()
     const userUuid = data.user_uuid
     const userData: string | null = await c.env.KV.get(userUuid)
-    const storedToken: string | null = userData ? JSON.parse(userData).accessToken : null
+    const parsedData = userData ? JSON.parse(userData) : {}
+    const storedToken: string | null = parsedData.accessToken
+    const teamId: number | null = parsedData.teamId
 
     if (!providedToken) {
         console.error('Missing token')
@@ -51,59 +54,13 @@ app.post('/trmnl/render', async (c) => {
         console.error(`Invalid token: ${providedToken}. Expected: ${storedToken}. User UUID: ${userUuid}`)
         return c.json({ error: 'Invalid token' }, 401)
     }
+    if (!teamId) {
+        console.error(`Missing teamId for user: ${userUuid}`)
+        return c.text('Missing teamId. Please press "Configure" in your plugin settings and pick your favorite team', 200)
+    }
 
     try {
-        const matches = await Promise.all(
-            teamIds.map(teamId =>
-                fetch(`http://api.football-data.org/v4/teams/${teamId}/matches?status=FINISHED&limit=1`, {
-                    headers: {
-                        'X-Auth-Token': env.FOOTBALL_DATA_API_KEY
-                    }
-                }).then(res => res.json())
-            )
-        )
-
-        const matchItems = matches.flatMap(response =>
-            response.matches.map(match => `
-        <div class="item">
-          <div class="meta"></div>
-          <div class="content">
-            <span class="title title--small">${match.homeTeam.name} vs ${match.awayTeam.name}</span>
-            <span class="description">${match.competition.name}</span>
-            <div class="flex gap--small">
-              <span class="label label--small label--underline">${match.score.fullTime.home} - ${match.score.fullTime.away}</span>
-              <span class="label label--small label--underline">${new Date(match.utcDate).toLocaleDateString()}</span>
-            </div>
-          </div>
-        </div>
-      `)
-        ).join('\n')
-
-        const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <link rel="stylesheet" href="https://usetrmnl.com/css/latest/plugins.css">
-          <link rel="stylesheet" href="https://usetrmnl.com/js/latest/plugins.js">
-        </head>
-        <body class="environment trmnl">
-          <div class="screen">
-            <div class="view view--full">
-              <div class="layout layout--col">
-                ${matchItems}
-              </div>
-              
-              <div class="title_bar">
-                <img class="image" src="https://usetrmnl.com/images/plugins/trmnl--render.svg" />
-                <span class="title">Football</span>
-                <span class="instance">for Robert</span>
-              </div>
-            </div>
-          </div>
-        </body>
-      </html>
-    `
-
+        const html = renderTeamMatches(teamId, c.env)
         return c.json({
             markup: html,
             markup_half_horizontal: '',
@@ -114,6 +71,10 @@ app.post('/trmnl/render', async (c) => {
         console.error('Error fetching matches:', error)
         return c.text('Error fetching matches', 500)
     }
+})
+
+app.get('/trmnl/barcelona', async (c) => {
+    return c.html(renderTeamMatches(81, c.env))
 })
 
 // OAuth routes
