@@ -10,11 +10,11 @@ export async function handleSettingsUpdate(c) {
         return c.text('Team ID is required', 400);
     }
 
-    const userData = await c.env.KV.get(userUuid);
+    const userData = JSON.parse(await c.env.KV.get(userUuid));
     if (!userData) {
         return c.text('User not found', 404);
     }
-    
+
     await c.env.KV.put(userUuid, JSON.stringify({ ...userData, teamId }));
 
     return c.text('Settings updated');
