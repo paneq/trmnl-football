@@ -1,13 +1,11 @@
 import {
     env,
-    createExecutionContext,
-    waitOnExecutionContext,
     fetchMock,
     SELF
 } from "cloudflare:test";
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
 
-describe("OAuth Handler", () => {
+describe("Happy path", () => {
     // Setup fetch mocking
     beforeAll(() => {
         fetchMock.activate();
@@ -16,10 +14,11 @@ describe("OAuth Handler", () => {
 
     // Clear all mocks after each test
     afterEach(() => {
+        // TODO: FIXME: This is not working
         // fetchMock.resetHandlers();
     });
 
-    it("successfully exchanges code for token and redirects", async () => {
+    it("oauth & installation & settings", async () => {
         // Mock the OAuth token endpoint
         fetchMock
             .get("https://usetrmnl.com")
@@ -30,7 +29,7 @@ describe("OAuth Handler", () => {
             .reply(200, {
                 access_token: "test-access-token",
                 token_type: "Bearer"
-            });
+            })
 
         const response = await SELF.fetch(
             "http://example.com/trmnl/oauth/new?code=test-code&installation_callback_url=https://callback.example.com",
@@ -63,6 +62,38 @@ describe("OAuth Handler", () => {
             }
         );
         expect(installationResponse.status).toBe(204);
+        // Check that the user was stored in KV
+        const user = await env.KV.get("674c9d99-cea1-4e52-9025-9efbe0e30901");
+        expect(JSON.parse(user)).toEqual({
+            accessToken: 'test-access-token',
+            user: {
+                name: "Test User",
+                email: "user@trmnl.com",
+                tz: "Eastern Time (US & Canada)",
+                uuid: "674c9d99-cea1-4e52-9025-9efbe0e30901",
+            }
+        })
+
+        expect(env.FOOTBALL_DATA_API_KEY).toBeDefined();
+        fetchMock
+            .get("http://api.football-data.org")
+            .intercept({
+                path: RegExp(String.raw`/v4/competitions/\d+/teams`),
+                headers: {
+                    'X-Auth-Token': env.FOOTBALL_DATA_API_KEY,
+                }
+            })
+            .reply(200, {
+                competition: {name: 'League Name'},
+                teams: [{
+                    id: 1,
+                    name: 'Team 1',
+                }],
+            })
+            .times(5);
+        const settingsResponse = await SELF.fetch(
+            "http://example.com/trmnl/settings?uuid=674c9d99-cea1-4e52-9025-9efbe0e30901",
+        )
 
     });
 });
