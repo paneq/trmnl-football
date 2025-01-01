@@ -32,20 +32,37 @@ describe("OAuth Handler", () => {
                 token_type: "Bearer"
             });
 
-        // const ctx = createExecutionContext();
         const response = await SELF.fetch(
             "http://example.com/trmnl/oauth/new?code=test-code&installation_callback_url=https://callback.example.com",
             {redirect: 'manual'}
         );
 
-        // await waitOnExecutionContext(ctx);
-
-        // Verify redirect
         expect(response.status).toBe(302);
         expect(response.headers.get("Location")).toBe("https://callback.example.com/");
 
-        // Optionally verify the KV storage if needed
-        // const storedData = await env.KV.get("test-access-token");
-        // expect(JSON.parse(storedData)).toEqual({ user: null });
+        const storedData = await env.KV.get("test-access-token");
+        expect(JSON.parse(storedData)).toEqual({ user: null });
+
+        const installationResponse = await SELF.fetch(
+            "http://example.com/trmnl/installed",
+            {
+                redirect: 'manual',
+                headers: {
+                    'Authorization': 'Bearer test-access-token',
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST',
+                body: JSON.stringify({
+                    user: {
+                        name: "Test User",
+                        email: "user@trmnl.com",
+                        tz: "Eastern Time (US & Canada)",
+                        uuid: "674c9d99-cea1-4e52-9025-9efbe0e30901",
+                    }
+                })
+            }
+        );
+        expect(installationResponse.status).toBe(204);
+
     });
 });
