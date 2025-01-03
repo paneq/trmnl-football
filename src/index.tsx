@@ -5,8 +5,8 @@ import { handleNewOAuth } from './handleNewOAuth'
 import { handleSettings } from './handleSettings'
 import { handleSettingsUpdate } from './handleSettingsUpdate'
 import { fetchAndRenderTeamMatches } from './renderTeamMatches'
-import { renderTableStandings } from './renderTableStandings'
-import { full } from './trml'
+import { TableStandings } from './TableStandings'
+import { Full } from './trml'
 
 type Bindings = {
     FOOTBALL_DATA_API_KEY: string
@@ -97,8 +97,7 @@ app.get('/trmnl/barcelona/standings', async (c) => {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json()
-    const standingsTableHtml = renderTableStandings(data, teamId);
-    return c.html(full(standingsTableHtml))
+    return c.html(<Full><TableStandings data={data} teamId={teamId} /></Full>)
 })
 
 // OAuth routes
