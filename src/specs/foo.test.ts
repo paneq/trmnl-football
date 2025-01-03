@@ -86,7 +86,7 @@ describe("Happy path", () => {
             .reply(200, {
                 competition: {name: 'League Name'},
                 teams: [{
-                    id: 1,
+                    id: 81,
                     name: 'Team 1',
                 }],
             })
@@ -94,6 +94,26 @@ describe("Happy path", () => {
         const settingsResponse = await SELF.fetch(
             "http://example.com/trmnl/settings?uuid=674c9d99-cea1-4e52-9025-9efbe0e30901",
         )
+        expect(settingsResponse.status).toBe(200)
+        const settingsHtml = await settingsResponse.text()
+        expect(settingsHtml).toContain('<form class="form" action="/trmnl/settings/update" method="POST">')
+        expect(settingsHtml).toContain('select name="teamId" class="input" required')
+        expect(settingsHtml).toContain('<input type="hidden" name="uuid" value="674c9d99-cea1-4e52-9025-9efbe0e30901" />')
+        expect(settingsHtml).toContain('<optgroup label="League Name">')
+        expect(settingsHtml).toContain('<option value="81">Team 1</option>')
 
+        const submitResponse = await SELF.fetch(
+            "http://example.com/trmnl/settings/update",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'teamId=81&uuid=674c9d99-cea1-4e52-9025-9efbe0e30901',
+                redirect: 'manual',
+            }
+        )
+        expect(submitResponse.status).toBe(302)
+        expect(submitResponse.headers.get('Location')).toBe('/trmnl/teams/81')
     });
 });
