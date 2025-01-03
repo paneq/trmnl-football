@@ -83,10 +83,11 @@ export async function fetchAndRenderTeamMatches(teamId: number, env) {
     const matches = await fetchTeamMatches(teamId, env);
     return (
         <Full>
-            <MatchesList matches={matches} />
+            <MatchesList matches={matches}/>
         </Full>
     )
 }
+
 export async function fetchTeamMatches(teamId: number, env): Promise<Match[]> {
     const data = await fetchJson<MatchesApiResponse>(`http://api.football-data.org/v4/teams/${teamId}/matches?status=FINISHED&limit=5`, {
         headers: {
@@ -97,30 +98,27 @@ export async function fetchTeamMatches(teamId: number, env): Promise<Match[]> {
     return data.matches;
 }
 
-export const MatchItem: React.FC<{ match: Match }> = ({ match }) => (
+export const MatchItem: React.FC<{ match: Match }> = ({match}) => (
     <div className="item">
         <div className="meta"></div>
         <div className="content">
-     <span className="title title--small">
-       {match.homeTeam.name} vs {match.awayTeam.name}
-     </span>
-            <span className="description">{match.competition.name}</span>
-            <div className="flex gap--small">
-       <span className="label label--small label--underline">
-         {match.score.fullTime.home} - {match.score.fullTime.away}
-       </span>
-                <span className="label label--small label--underline">
-         {new Date(match.utcDate).toLocaleDateString()}
-       </span>
-            </div>
+             <span className="title title--small">
+               {match.homeTeam.name} vs {match.awayTeam.name}
+             </span>
+            <span className="label label--small label--underline">
+                {match.score.fullTime.home} - {match.score.fullTime.away}
+            </span>
+            <span className="label label--small label--underline">
+                {match.competition.name}, {new Date(match.utcDate).toLocaleDateString()}
+            </span>
         </div>
     </div>
 );
 
-export const MatchesList: React.FC<{ matches: Match[] }> = ({ matches }) => (
+export const MatchesList: React.FC<{ matches: Match[] }> = ({matches}) => (
     <>
-    {matches.map((match, index) => (
-        <MatchItem key={index} match={match} />
-    ))}
+        {matches.map((match, index) => (
+            <MatchItem key={index} match={match}/>
+        ))}
     </>
 );
