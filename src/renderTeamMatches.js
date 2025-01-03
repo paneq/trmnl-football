@@ -1,4 +1,9 @@
 export async function fetchAndRenderTeamMatches(teamId, env) {
+    const matches = await fetchTeamMatches(teamId, env);
+    return renderMatchesHtml(matches);
+}
+
+export async function fetchTeamMatches(teamId, env) {
     const response = await fetch(`http://api.football-data.org/v4/teams/${teamId}/matches?status=FINISHED&limit=5`, {
         headers: {
             'X-Auth-Token': env.FOOTBALL_DATA_API_KEY
@@ -8,11 +13,12 @@ export async function fetchAndRenderTeamMatches(teamId, env) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json()
-    console.log(data);
     data.matches.reverse()
-    console.log(data.matches[0].competition)
+    return data.matches;
+}
 
-    const matchItems = data.matches.map(match => `
+export function renderMatchesHtml(matches) {
+    const matchItems = matches.map(match => `
             <div class="item">
               <div class="meta"></div>
               <div class="content">
@@ -26,7 +32,7 @@ export async function fetchAndRenderTeamMatches(teamId, env) {
             </div>
         `).join('\n')
 
-    const html = `
+    return `
           <!DOCTYPE html>
           <html>
             <head>
@@ -50,5 +56,4 @@ export async function fetchAndRenderTeamMatches(teamId, env) {
             </body>
           </html>
         `
-    return html;
 }
