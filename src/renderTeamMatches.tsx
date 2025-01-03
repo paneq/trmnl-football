@@ -1,6 +1,12 @@
+import {Full} from "./trml";
+
 export async function fetchAndRenderTeamMatches(teamId, env) {
     const matches = await fetchTeamMatches(teamId, env);
-    return <MatchesList matches={matches} />;
+    return (
+        <Full>
+            <MatchesList matches={matches} />
+        </Full>
+    )
 }
 
 export async function fetchTeamMatches(teamId, env) {
@@ -46,26 +52,9 @@ export const MatchItem: React.FC<{ match: Match }> = ({ match }) => (
 );
 
 export const MatchesList: React.FC<{ matches: Match[] }> = ({ matches }) => (
-    <html>
-    <head>
-        <link rel="stylesheet" href="https://usetrmnl.com/css/latest/plugins.css" />
-        <link rel="stylesheet" href="https://usetrmnl.com/js/latest/plugins.js" />
-    </head>
-    <body className="environment trmnl">
-    <div className="screen">
-        <div className="view view--full">
-            <div className="layout layout--col">
-                {matches.map((match, index) => (
-                    <MatchItem key={index} match={match} />
-                ))}
-            </div>
-            <div className="title_bar">
-                <img className="image" src="https://usetrmnl.com/images/plugins/trmnl--render.svg" />
-                <span className="title">Football</span>
-                <span className="instance">for Robert</span>
-            </div>
-        </div>
-    </div>
-    </body>
-    </html>
+    <>
+    {matches.map((match, index) => (
+        <MatchItem key={index} match={match} />
+    ))}
+    </>
 );
