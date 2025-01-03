@@ -1,6 +1,85 @@
 import {Full} from "./trml";
+import {fetchJson} from "./fetchJson";
 
-export async function fetchAndRenderTeamMatches(teamId, env) {
+interface MatchesApiResponse {
+    filters: {
+        competitions?: string;
+        permission: string;
+        limit: number;
+    };
+    resultSet: {
+        count: number;
+        competitions?: string;
+        first: string;
+        last: string;
+        played: number;
+        wins: number;
+        draws: number;
+        losses: number;
+    };
+    matches: Match[];
+}
+
+interface Match {
+    area: {
+        id: number;
+        name: string;
+        code: string;
+        flag: string | null;
+    };
+    competition: {
+        id: number;
+        name: string;
+        code: string;
+        type: string;
+        emblem: string;
+    };
+    season: {
+        id: number;
+        startDate: string;
+        endDate: string;
+        currentMatchday: number;
+        winner: string | null;
+        stages: string[];
+    };
+    id: number;
+    utcDate: string;
+    status: string;
+    minute: number | null;
+    venue: string | null;
+    stage: string;
+    group: string | null;
+    homeTeam: Team;
+    awayTeam: Team;
+    score: {
+        winner: string | null;
+        duration: string;
+        fullTime: {
+            home: number | null;
+            away: number | null;
+        };
+        halfTime: {
+            home: number | null;
+            away: number | null;
+        };
+    };
+}
+
+interface Team {
+    id: number | null;
+    name: string | null;
+    shortName: string | null;
+    tla: string | null;
+    crest: string | null;
+    coach: {
+        id: number | null;
+        name: string | null;
+        nationality: string | null;
+    };
+    formation: string | null;
+}
+
+export async function fetchAndRenderTeamMatches(teamId: number, env) {
     const matches = await fetchTeamMatches(teamId, env);
     return (
         <Full>
@@ -8,27 +87,14 @@ export async function fetchAndRenderTeamMatches(teamId, env) {
         </Full>
     )
 }
-
-export async function fetchTeamMatches(teamId, env) {
-    const response = await fetch(`http://api.football-data.org/v4/teams/${teamId}/matches?status=FINISHED&limit=5`, {
+export async function fetchTeamMatches(teamId: number, env): Promise<Match[]> {
+    const data = await fetchJson<MatchesApiResponse>(`http://api.football-data.org/v4/teams/${teamId}/matches?status=FINISHED&limit=5`, {
         headers: {
             'X-Auth-Token': env.FOOTBALL_DATA_API_KEY
         }
-    })
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json()
-    data.matches.reverse()
+    });
+    data.matches.reverse();
     return data.matches;
-}
-
-interface Match {
-    homeTeam: { name: string };
-    awayTeam: { name: string };
-    competition: { name: string };
-    score: { fullTime: { home: number; away: number } };
-    utcDate: string;
 }
 
 export const MatchItem: React.FC<{ match: Match }> = ({ match }) => (
