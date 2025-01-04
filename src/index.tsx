@@ -63,8 +63,9 @@ app.post('/trmnl/render', async (c) => {
 
     try {
         const html = await fetchAndRenderTeamMatches(teamId, c.env)
+        const htmlString = await html.toString()
         return c.json({
-            markup: html,
+            markup: htmlString,
             markup_half_horizontal: '',
             markup_half_vertical: '',
             markup_quadrant: ''
