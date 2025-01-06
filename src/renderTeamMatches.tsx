@@ -2,8 +2,8 @@ import {Full} from "./trml";
 import {formatScore} from "./formatScore";
 import {fetchTeamMatches} from "./football-data-client";
 
-export async function fetchAndRenderTeamMatches(teamId: number, env) {
-    const matches = await fetchTeamMatches(teamId, env);
+export async function fetchAndRenderTeamMatches(teamId: number) {
+    const matches = await fetchTeamMatches(teamId);
     return (
         <Full>
             <MatchesList matches={matches}/>

@@ -8,6 +8,7 @@ import { fetchAndRenderTeamMatches } from './renderTeamMatches'
 import { TableStandings } from './TableStandings'
 import { Full } from './trml'
 import {setEnv} from "./globals";
+import {fetchStandings} from "./football-data-client";
 
 type Bindings = {
     FOOTBALL_DATA_API_KEY: string
@@ -90,18 +91,9 @@ app.get('/trmnl/barcelona', async (c) => {
 })
 
 app.get('/trmnl/barcelona/standings', async (c) => {
-    const id = 2014 // Primera Division
+    const competitionId = 2014 // Primera Division
     const teamId = 81 // Barcelona
-
-    const response = await fetch(`http://api.football-data.org/v4/competitions/${id}/standings`, {
-        headers: {
-            'X-Auth-Token': c.env.FOOTBALL_DATA_API_KEY
-        }
-    })
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json()
+    const data = await fetchStandings(competitionId)
     return c.html(<Full><TableStandings data={data} teamId={teamId} /></Full>)
 })
 

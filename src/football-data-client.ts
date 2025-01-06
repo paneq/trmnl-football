@@ -79,18 +79,70 @@ interface Team {
     formation: string | null;
 }
 
-export async function fetchTeamMatches(teamId: number, env): Promise<Match[]> {
-    let finishedGamesUrl =
+interface StandingsApiResponse {
+    filters: {
+        season: string;
+    };
+    area: {
+        id: number;
+        name: string;
+        code: string;
+        flag: string;
+    };
+    competition: {
+        id: number;
+        name: string;
+        code: string;
+        type: string;
+        emblem: string;
+    };
+    season: {
+        id: number;
+        startDate: string;
+        endDate: string;
+        currentMatchday: number;
+        winner: null | string;
+        stages: string[];
+    };
+    standings: Array<{
+        stage: string;
+        type: string;
+        group: null | string;
+        table: Array<{
+            position: number;
+            team: Team;
+            playedGames: number;
+            form: string;
+            won: number;
+            draw: number;
+            lost: number;
+            points: number;
+            goalsFor: number;
+            goalsAgainst: number;
+            goalDifference: number;
+        }>;
+    }>;
+}
+
+export async function fetchTeamMatches(teamId: number): Promise<Match[]> {
+    let finishedGamesPath =
         `v4/teams/${teamId}/matches?status=FINISHED&limit=5`;
-    const data = await fetchFootballDataJson<MatchesApiResponse>(finishedGamesUrl)
+    const data = await fetchFootballDataJson<MatchesApiResponse>(finishedGamesPath)
     data.matches.reverse();
     return data.matches;
 }
 
+const baseUrl = 'http://api.football-data.org'
+
 async function fetchFootballDataJson<T>(path: String): Promise<T> {
-    const url = `http://api.football-data.org/${path}`;
+    const url = `${baseUrl}/${path}`;
     return await fetchJson<T>(url, {
         headers: {
             'X-Auth-Token': getEnv().FOOTBALL_DATA_API_KEY
         }})
+}
+
+export async function fetchStandings(competitionId: number) {
+    const standingsPath = `v4/competitions/${competitionId}/standings`
+    return await fetchFootballDataJson<StandingsApiResponse>(standingsPath)
 }
