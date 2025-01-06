@@ -4,6 +4,7 @@ import {
     SELF
 } from "cloudflare:test";
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
+import barcelonaLastFiveMatches from './api-snapshots/barcelonaLastFiveMatches.json';
 
 describe("Happy path", () => {
     // Setup fetch mocking
@@ -115,5 +116,38 @@ describe("Happy path", () => {
         )
         expect(submitResponse.status).toBe(302)
         expect(submitResponse.headers.get('Location')).toBe('/trmnl/teams/81')
+
+
+        // MAIN TRMNL RENDER
+        fetchMock
+            .get("http://api.football-data.org")
+            .intercept({
+                path: 'v4/teams/81/matches?status=FINISHED&limit=5',
+                headers: {
+                    'X-Auth-Token': env.FOOTBALL_DATA_API_KEY,
+                },
+            })
+            .reply(200, barcelonaLastFiveMatches)
+
+        const mainResponse = await SELF.fetch(
+            "http://example.com/trmnl/render",
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': 'Bearer test-access-token',
+                },
+                body: 'user_uuid=674c9d99-cea1-4e52-9025-9efbe0e30901',
+                method: 'POST',
+            },
+        )
+        expect(mainResponse.status).toBe(200)
+        const mainHtml = await mainResponse.text()
+        expect(mainHtml).toContain('RCD Mallorca vs FC Barcelona')
+        expect(mainHtml).toContain('Real Betis Balompié vs FC Barcelona')
+        expect(mainHtml).toContain('Borussia Dortmund vs FC Barcelona')
+        expect(mainHtml).toContain('FC Barcelona vs CD Leganés')
+        expect(mainHtml).toContain('FC Barcelona vs Club Atlético de Madrid')
+        expect(mainHtml).not.toContain('undefined')
+        expect(mainHtml).not.toContain('null')
     });
 });
