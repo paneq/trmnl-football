@@ -142,11 +142,12 @@ describe("Happy path", () => {
         )
         expect(mainResponse.status).toBe(200)
         const mainHtml = await mainResponse.text()
-        expect(mainHtml).toContain('RCD Mallorca vs FC Barcelona')
-        expect(mainHtml).toContain('Real Betis Balompié vs FC Barcelona')
-        expect(mainHtml).toContain('Borussia Dortmund vs FC Barcelona')
-        expect(mainHtml).toContain('FC Barcelona vs CD Leganés')
-        expect(mainHtml).toContain('FC Barcelona vs Club Atlético de Madrid')
+        expect(mainHtml).toContain('Barça vs Atleti')
+        expect(mainHtml).toContain('Barça vs Leganés')
+        expect(mainHtml).toContain('Dortmund vs Barça')
+        expect(mainHtml).toContain('Real Betis vs Barça')
+        expect(mainHtml).toContain('Mallorca vs Barça')
+
         expect(mainHtml).not.toContain('undefined')
         expect(mainHtml).not.toContain('null')
     });

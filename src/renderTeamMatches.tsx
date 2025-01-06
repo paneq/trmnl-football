@@ -20,7 +20,7 @@ export const MatchItem: React.FC<{ match: Match }> = ({match}) => (
         <div className="meta"></div>
         <div className="content">
              <span className="title">
-               {match.homeTeam.name} vs {match.awayTeam.name}
+               {match.homeTeam.shortName} vs {match.awayTeam.shortName}
              </span>
             <span className="title title--small">
                 {formatScore(match.score)}
