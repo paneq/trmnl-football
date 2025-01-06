@@ -4,11 +4,11 @@ import compare from 'secure-compare'
 import { handleNewOAuth } from './handleNewOAuth'
 import { handleSettings } from './handleSettings'
 import { handleSettingsUpdate } from './handleSettingsUpdate'
-import { fetchAndRenderTeamMatches } from './renderTeamMatches'
+import {fetchAndRenderTeamMatches, MatchesList} from './renderTeamMatches'
 import { TableStandings } from './TableStandings'
-import { Full } from './trml'
+import {Column, Columns, Full} from './trml'
 import {setEnv} from "./globals";
-import {fetchStandings} from "./football-data-client";
+import {fetchStandings, fetchTeamMatches, StandingsApiResponse} from "./football-data-client";
 
 type Bindings = {
     FOOTBALL_DATA_API_KEY: string
@@ -94,7 +94,34 @@ app.get('/trmnl/barcelona/standings', async (c) => {
     const competitionId = 2014 // Primera Division
     const teamId = 81 // Barcelona
     const data = await fetchStandings(competitionId)
-    return c.html(<Full><TableStandings data={data} teamId={teamId} /></Full>)
+    return c.html(<Full><TableStandings variant={'regular'} data={data} teamId={teamId} /></Full>)
+})
+
+app.get('/trmnl/barcelona/demo', async (c) => {
+    const teamId = 81 // Barcelona
+    const matches = await fetchTeamMatches(teamId);
+    let standing: null | StandingsApiResponse = null;
+    if (matches[0] && matches[0].competition) {
+        const competitionId = matches[0].competition.id
+        try {
+            standing = await fetchStandings(competitionId)
+        } catch (error) {
+            console.log(`Error fetching standings for competition ${competitionId}`)
+            console.log(error)
+        }
+
+    }
+    const fullScreenHtml = <Full>
+        <Columns>
+            <Column>
+                <MatchesList matches={matches}/>
+            </Column>
+            <Column>
+                <TableStandings variant={'compact'} data={standing} teamId={teamId} />
+            </Column>
+        </Columns>
+    </Full>
+    return c.html(fullScreenHtml)
 })
 
 // OAuth routes

@@ -1,4 +1,4 @@
-import {Full} from "./trml";
+import {Column, Columns, Full} from "./trml";
 import {formatScore} from "./formatScore";
 import {fetchTeamMatches} from "./football-data-client";
 
@@ -6,7 +6,11 @@ export async function fetchAndRenderTeamMatches(teamId: number) {
     const matches = await fetchTeamMatches(teamId);
     return (
         <Full>
-            <MatchesList matches={matches}/>
+            <Columns>
+                <Column>
+                    <MatchesList matches={matches}/>
+                </Column>
+            </Columns>
         </Full>
     )
 }

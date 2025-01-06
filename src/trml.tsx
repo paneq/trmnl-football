@@ -2,19 +2,33 @@ interface ScreenProps {
     children: React.ReactNode;
 }
 
+interface ChildrenOnly {
+    children: React.ReactNode;
+}
+
 interface FullProps {
     children: React.ReactNode;
     title?: string;
     instance?: string;
 }
 
-export function Screen({ children }: ScreenProps) {
+export function Screen({children}: ScreenProps) {
     return (
         <html>
         <head>
-            <link rel="stylesheet" href="https://usetrmnl.com/css/latest/plugins.css" />
-            <link rel="stylesheet" href="https://usetrmnl.com/js/latest/plugins.js" />
+            <link rel="stylesheet" href="https://usetrmnl.com/css/latest/plugins.css"/>
+            <link rel="stylesheet" href="https://usetrmnl.com/js/latest/plugins.js"/>
         </head>
+        <style dangerouslySetInnerHTML={{
+            __html: `
+            .trmnl .view--full .layout {
+              padding: 0px;
+            }
+            .trmnl .columns {
+              align-items: self-start;
+            }
+          `
+        }}/>
         <body className="environment trmnl">
         <div className="screen">
             {children}
@@ -24,11 +38,11 @@ export function Screen({ children }: ScreenProps) {
     );
 }
 
-export function Full({ children, title = "Football", instance = "for Robert" }: FullProps) {
+export function Full({children, title = "Football", instance = "for Robert"}: FullProps) {
     return (
         <Screen>
             <div className="view view--full">
-                <div className="layout layout--col">
+                <div className="layout">
                     {children}
                 </div>
 
@@ -43,5 +57,23 @@ export function Full({ children, title = "Football", instance = "for Robert" }: 
                 </div>
             </div>
         </Screen>
+    );
+}
+
+// <div class="columns">
+export function Columns({children}: ChildrenOnly) {
+    return (
+        <div className="columns">
+            {children}
+        </div>
+    );
+}
+
+//   <div class="column">
+export function Column({children}: ChildrenOnly) {
+    return (
+        <div className="column">
+            {children}
+        </div>
     );
 }

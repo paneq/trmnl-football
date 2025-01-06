@@ -49,9 +49,11 @@ function filterStandings(table: TableEntry[], teamId: number): TableEntry[] {
 interface TableStandingsProps {
     data: StandingsData;
     teamId: number;
+    // variant can be 'regular' or 'compact'
+    variant: 'regular' | 'compact';
 }
 
-export function TableStandings({ data, teamId }: TableStandingsProps) {
+export function TableStandings({ data, teamId, variant }: TableStandingsProps) {
     const standings = data.standings.find(
         standing => standing.type === 'TOTAL' && standing.stage === 'REGULAR_SEASON'
     );
@@ -72,9 +74,13 @@ export function TableStandings({ data, teamId }: TableStandingsProps) {
                 <th><span className="title">W</span></th>
                 <th><span className="title">D</span></th>
                 <th><span className="title">L</span></th>
-                <th><span className="title">GF</span></th>
-                <th><span className="title">GA</span></th>
-                <th><span className="title">GD</span></th>
+                {variant === 'regular' && (
+                    <>
+                        <th><span className="title">GF</span></th>
+                        <th><span className="title">GA</span></th>
+                        <th><span className="title">GD</span></th>
+                    </>
+                )}
                 <th><span className="title">Pts</span></th>
             </tr>
             </thead>
@@ -87,9 +93,13 @@ export function TableStandings({ data, teamId }: TableStandingsProps) {
                     <td><span className="label">{team.won}</span></td>
                     <td><span className="label">{team.draw}</span></td>
                     <td><span className="label">{team.lost}</span></td>
-                    <td><span className="label">{team.goalsFor}</span></td>
-                    <td><span className="label">{team.goalsAgainst}</span></td>
-                    <td><span className="label">{team.goalDifference}</span></td>
+                    {variant === 'regular' && (
+                        <>
+                            <td><span className="label">{team.goalsFor}</span></td>
+                            <td><span className="label">{team.goalsAgainst}</span></td>
+                            <td><span className="label">{team.goalDifference}</span></td>
+                        </>
+                    )}
                     <td><span className="label">{team.points}</span></td>
                 </tr>
             ))}

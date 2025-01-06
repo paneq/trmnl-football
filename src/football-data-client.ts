@@ -1,7 +1,7 @@
 import {fetchJson} from "./fetchJson";
 import {getEnv} from "./globals";
 
-interface MatchesApiResponse {
+export interface MatchesApiResponse {
     filters: {
         competitions?: string;
         permission: string;
@@ -20,7 +20,7 @@ interface MatchesApiResponse {
     matches: Match[];
 }
 
-interface Match {
+export interface Match {
     area: {
         id: number;
         name: string;
@@ -65,7 +65,7 @@ interface Match {
     };
 }
 
-interface Team {
+export interface Team {
     id: number | null;
     name: string | null;
     shortName: string | null;
@@ -79,7 +79,7 @@ interface Team {
     formation: string | null;
 }
 
-interface StandingsApiResponse {
+export interface StandingsApiResponse {
     filters: {
         season: string;
     };
