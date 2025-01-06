@@ -7,6 +7,7 @@ import { handleSettingsUpdate } from './handleSettingsUpdate'
 import { fetchAndRenderTeamMatches } from './renderTeamMatches'
 import { TableStandings } from './TableStandings'
 import { Full } from './trml'
+import {setEnv} from "./globals";
 
 type Bindings = {
     FOOTBALL_DATA_API_KEY: string
@@ -29,7 +30,10 @@ function bearerToken(req: HonoRequest): string | null {
 
 const app = new Hono<{ Bindings: Bindings }>()
 
-// Add logging middleware
+app.use('*', async (c, next) => {
+    setEnv(c.env)
+    await next()
+})
 app.use('*', logger())
 
 // Main route for displaying matches
