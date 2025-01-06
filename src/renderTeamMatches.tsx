@@ -1,5 +1,6 @@
 import {Full} from "./trml";
 import {fetchJson} from "./fetchJson";
+import {formatScore} from "./formatScore";
 
 interface MatchesApiResponse {
     filters: {
@@ -102,11 +103,11 @@ export const MatchItem: React.FC<{ match: Match }> = ({match}) => (
     <div className="item">
         <div className="meta"></div>
         <div className="content">
-             <span className="title title--small">
+             <span className="title">
                {match.homeTeam.name} vs {match.awayTeam.name}
              </span>
-            <span className="label label--small label--underline">
-                {match.score.fullTime.home} - {match.score.fullTime.away}
+            <span className="title title--small">
+                {formatScore(match.score)}
             </span>
             <span className="label label--small label--underline">
                 {match.competition.name}, {new Date(match.utcDate).toLocaleDateString()}
@@ -122,3 +123,5 @@ export const MatchesList: React.FC<{ matches: Match[] }> = ({matches}) => (
         ))}
     </>
 );
+
+
