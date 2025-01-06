@@ -1,5 +1,5 @@
 import {Full} from "./trml";
-import {fetchJson} from "./fetchJson";
+import {fetchFootballDataJson} from "./fetchFootballDataJson";
 import {formatScore} from "./formatScore";
 
 interface MatchesApiResponse {
@@ -90,11 +90,9 @@ export async function fetchAndRenderTeamMatches(teamId: number, env) {
 }
 
 export async function fetchTeamMatches(teamId: number, env): Promise<Match[]> {
-    const data = await fetchJson<MatchesApiResponse>(`http://api.football-data.org/v4/teams/${teamId}/matches?status=FINISHED&limit=5`, {
-        headers: {
-            'X-Auth-Token': env.FOOTBALL_DATA_API_KEY
-        }
-    });
+    let finishedGamesUrl =
+        `v4/teams/${teamId}/matches?status=FINISHED&limit=5`;
+    const data = await fetchFootballDataJson<MatchesApiResponse>(finishedGamesUrl)
     data.matches.reverse();
     return data.matches;
 }
