@@ -103,6 +103,14 @@ describe("Happy path", () => {
         expect(settingsHtml).toContain('<optgroup label="League Name">')
         expect(settingsHtml).toContain('<option value="81">Team 1</option>')
 
+        const settingsResponseAgain = await SELF.fetch(
+            "http://example.com/trmnl/settings?uuid=674c9d99-cea1-4e52-9025-9efbe0e30901",
+        )
+        expect(settingsResponseAgain.status).toBe(200)
+        const settingsHtmlAgain = await settingsResponseAgain.text()
+        expect(settingsHtmlAgain).toContain('<option value="81">Team 1</option>')
+
+
         const submitResponse = await SELF.fetch(
             "http://example.com/trmnl/settings/update",
             {

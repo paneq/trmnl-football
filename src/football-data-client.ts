@@ -1,5 +1,6 @@
 import {fetchJson} from "./fetchJson";
 import {getEnv} from "./globals";
+import {getOrSet} from "./kv";
 
 export interface MatchesApiResponse {
     filters: {
@@ -65,20 +66,6 @@ export interface Match {
     };
 }
 
-export interface Team {
-    id: number | null;
-    name: string | null;
-    shortName: string | null;
-    tla: string | null;
-    crest: string | null;
-    coach: {
-        id: number | null;
-        name: string | null;
-        nationality: string | null;
-    };
-    formation: string | null;
-}
-
 export interface StandingsApiResponse {
     filters: {
         season: string;
@@ -124,6 +111,79 @@ export interface StandingsApiResponse {
     }>;
 }
 
+export interface TeamsApiResponse {
+    count: number;
+    filters: {
+        season: string;
+    };
+    competition: Competition;
+    season: Season;
+    teams: Team[];
+}
+
+export interface Team {
+    area: Area;
+    id: number;
+    name: string;
+    shortName: string;
+    tla: string;
+    crest: string;
+    address: string;
+    website: string;
+    founded: number;
+    clubColors: string;
+    venue: string;
+    runningCompetitions: Competition[];
+    coach: Coach;
+    squad: Player[];
+    staff: Record<string, never>;
+    lastUpdated: string;
+}
+
+interface Area {
+    id: number;
+    name: string;
+    code: string;
+    flag: string;
+}
+
+interface Competition {
+    id: number;
+    name: string;
+    code: string;
+    type: string;
+    emblem: string | null;
+}
+
+interface Season {
+    id: number;
+    startDate: string;
+    endDate: string;
+    currentMatchday: number;
+    winner: string | null;
+}
+
+interface Coach {
+    id: number;
+    firstName: string;
+    lastName: string;
+    name: string;
+    dateOfBirth: string;
+    nationality: string;
+    contract: {
+        start: string;
+        until: string;
+    };
+}
+
+interface Player {
+    id: number;
+    name: string;
+    position: string;
+    dateOfBirth: string;
+    nationality: string;
+}
+
 export async function fetchTeamMatches(teamId: number): Promise<Match[]> {
     let finishedGamesPath =
         `v4/teams/${teamId}/matches?status=FINISHED&limit=5`;
@@ -142,7 +202,19 @@ async function fetchFootballDataJson<T>(path: String): Promise<T> {
         }})
 }
 
-export async function fetchStandings(competitionId: number) {
+export async function fetchStandings(competitionId: number): Promise<StandingsApiResponse> {
     const standingsPath = `v4/competitions/${competitionId}/standings`
     return await fetchFootballDataJson<StandingsApiResponse>(standingsPath)
+}
+
+export async function fetchLeagueTeams(competitionId: number): Promise<TeamsApiResponse> {
+    return await getOrSet<TeamsApiResponse>(
+        getEnv().KV,
+        `teams-${competitionId}`,
+        async () => {
+            const teamPath = `v4/competitions/${competitionId}/teams`
+            return await fetchFootballDataJson<TeamsApiResponse>(teamPath)
+        },
+        {expirationTtl: 60 * 60 * 24}
+    )
 }

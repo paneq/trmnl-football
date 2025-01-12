@@ -1,3 +1,5 @@
+import {fetchLeagueTeams} from "./football-data-client";
+
 const TOP_LEAGUES = {
     PL: 2021,  // Premier League
     PD: 2014,  // La Liga
@@ -22,15 +24,7 @@ export async function handleSettings(c) {
     const teams = await Promise.all(
         Object.entries(TOP_LEAGUES).map(async ([leagueCode, leagueId]) => {
             try {
-                const response = await fetch(
-                    `http://api.football-data.org/v4/competitions/${leagueId}/teams`,
-                    {
-                        headers: {
-                            'X-Auth-Token': c.env.FOOTBALL_DATA_API_KEY
-                        }
-                    }
-                );
-                const data = await response.json();
+                const data = await fetchLeagueTeams(leagueId)
                 return {
                     leagueName: data.competition.name,
                     teams: data.teams || []
