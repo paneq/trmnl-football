@@ -1,19 +1,15 @@
 import {Hono, HonoRequest} from 'hono'
-import { logger } from 'hono/logger'
+import {logger} from 'hono/logger'
 import compare from 'secure-compare'
-import { handleNewOAuth } from './handleNewOAuth'
-import { handleSettings } from './handleSettings'
-import { handleSettingsUpdate } from './handleSettingsUpdate'
+import {handleNewOAuth} from './handleNewOAuth'
+import {handleSettings} from './handleSettings'
+import {handleSettingsUpdate} from './handleSettingsUpdate'
 import {fetchAndRenderTeamMatches, MatchesList} from './renderTeamMatches'
-import { TableStandings } from './TableStandings'
+import {TableStandings} from './TableStandings'
 import {Column, Columns, Full} from './trml'
 import {setEnv} from "./globals";
 import {fetchStandings, fetchTeamMatches, StandingsApiResponse} from "./football-data-client";
-
-type Bindings = {
-    FOOTBALL_DATA_API_KEY: string
-    KV: KVNamespace
-}
+import {Bindings} from "./bindings";
 
 function bearerToken(req: HonoRequest): string | null {
     const authHeader = req.header('Authorization')

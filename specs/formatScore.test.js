@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
-import {formatScore} from "../formatScore.js";
+import {formatScore} from "../src/formatScore.js";
 
 describe("formatScore", () => {
     it("regular", async () => {

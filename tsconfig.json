@@ -3,14 +3,20 @@
     "target": "ES2020",
     "module": "ES2020",
     "lib": ["ES2020"],
-    "types": ["@cloudflare/workers-types"],
-    "moduleResolution": "node",
+    "types": [
+//      "@cloudflare/workers-types",
+      "@cloudflare/workers-types/experimental",
+      "@cloudflare/vitest-pool-workers" // For `cloudflare:test` types
+    ],
+    "moduleResolution": "bundler",
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "baseUrl": ".",
     "skipLibCheck": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx"
-  }
+    "jsxImportSource": "hono/jsx",
+//    "allowSyntheticDefaultImports": true,
+  },
+//  "exclude": ["specs"],
 }

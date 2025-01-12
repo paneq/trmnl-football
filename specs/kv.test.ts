@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { env } from "cloudflare:test";
 
-import { getOrSet } from '../kv';
+import { getOrSet } from '../src/kv';
 
 describe('getOrSet', () => {
-    const TEST_NAMESPACE = env.KV;
+    const TEST_NAMESPACE: KVNamespace = env.KV;
 
     it('should set and return new value when key does not exist', async () => {
         const testData = { test: 'data' }
