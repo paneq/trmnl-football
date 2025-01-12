@@ -1,18 +1,9 @@
-interface ScreenProps {
-    children: React.ReactNode;
+import { Child, FC, PropsWithChildren, JSX } from 'hono/jsx'
+
+type ChildrenOnly = {
 }
 
-interface ChildrenOnly {
-    children: React.ReactNode;
-}
-
-interface FullProps {
-    children: React.ReactNode;
-    title?: string;
-    instance?: string;
-}
-
-export function Screen({children}: ScreenProps) {
+export function Screen({ children }: PropsWithChildren<ChildrenOnly>) {
     return (
         <html>
         <head>
@@ -38,7 +29,11 @@ export function Screen({children}: ScreenProps) {
     );
 }
 
-export function Full({children, title = "Football", instance = "for Robert"}: FullProps) {
+type FullProps = {
+    title?: string
+    instance?: string
+}
+export function Full({ title = "Strava", instance = "for Robert", children }: PropsWithChildren<FullProps>) {
     return (
         <Screen>
             <div className="view view--full">
@@ -61,7 +56,7 @@ export function Full({children, title = "Football", instance = "for Robert"}: Fu
 }
 
 // <div class="columns">
-export function Columns({children}: ChildrenOnly) {
+export function Columns({ children }: PropsWithChildren<ChildrenOnly>) {
     return (
         <div className="columns">
             {children}
@@ -70,7 +65,7 @@ export function Columns({children}: ChildrenOnly) {
 }
 
 //   <div class="column">
-export function Column({children}: ChildrenOnly) {
+export function Column({ children }: PropsWithChildren<ChildrenOnly>) {
     return (
         <div className="column">
             {children}
