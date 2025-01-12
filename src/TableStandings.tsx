@@ -55,7 +55,7 @@ interface TableStandingsProps {
 
 export function TableStandings({ data, teamId, variant }: TableStandingsProps) {
     const standings = data.standings.find(
-        standing => standing.type === 'TOTAL' && standing.stage === 'REGULAR_SEASON'
+        standing => standing.type === 'TOTAL'
     );
 
     if (!standings?.table) {
